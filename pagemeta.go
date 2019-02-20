@@ -1,12 +1,62 @@
 package htmlmeta
 
-import "net/url"
+import (
+	"io"
+	"net/url"
+
+	"golang.org/x/net/html"
+)
 
 // PageMeta contains all metadata extracted from an html page
 type PageMeta struct {
 	Title  string
 	Links  []LinkMeta
 	Images []ImageMeta
+}
+
+// CreatePageMeta reads an HTML file from a reader and generates a PageMeta struct
+func CreatePageMeta(r io.Reader) (*PageMeta, error) {
+	pageMeta := &PageMeta{
+		Links:  make([]LinkMeta, 0, 10),
+		Images: make([]ImageMeta, 0, 10),
+	}
+
+	doc, err := html.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			href := ""
+			text := ""
+			for _, a := range n.Attr {
+				if a.Key == "href" {
+					href = a.Val
+				}
+			}
+			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				if c.Type == html.TextNode {
+					text = text + c.Data
+				}
+			}
+
+			parsedURL, _ := url.Parse(href)
+			if parsedURL != nil {
+				pageMeta.Links = append(pageMeta.Links, LinkMeta{
+					URL:  *parsedURL,
+					Text: text,
+				})
+			}
+		} else {
+			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				f(c)
+			}
+		}
+	}
+	f(doc)
+
+	return pageMeta, nil
 }
 
 // LinkMeta contains extracted metadata from an a tag
