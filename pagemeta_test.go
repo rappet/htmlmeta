@@ -12,6 +12,7 @@ const exampleFile string = `
 <html>
 <body>
 	<a href="http://example.org/foo">foo</a>
+	<img src="http://example.org/a.png" alt="bar"/>
 </body>
 </html>
 `
@@ -27,7 +28,10 @@ var exampleMeta = &PageMeta{
 		URL:  parse_url("http://example.org/foo"),
 		Text: "foo",
 	}},
-	Images: []ImageMeta{},
+	Images: []ImageMeta{ImageMeta{
+		Source:        parse_url("http://example.org/a.png"),
+		AlternateText: "bar",
+	}},
 }
 
 func TestCreatePageMeta(t *testing.T) {
