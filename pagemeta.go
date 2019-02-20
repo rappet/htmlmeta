@@ -5,8 +5,8 @@ import "net/url"
 // PageMeta contains all metadata extracted from an html page
 type PageMeta struct {
 	Title  string
-	Links  []url.URL
-	Images []url.URL
+	Links  []LinkMeta
+	Images []ImageMeta
 }
 
 // LinkMeta contains extracted metadata from an a tag
