@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -61,11 +62,16 @@ func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 		} else if n.Type == html.ElementNode && n.Data == "img" {
 			src := extractAttr(n.Attr, "src")
 			alt := extractAttr(n.Attr, "alt")
+			width, _ := strconv.Atoi(extractAttr(n.Attr, "width"))
+			height, _ := strconv.Atoi(extractAttr(n.Attr, "height"))
+
 			parsedSrc, _ := url.Parse(src)
 			if parsedSrc != nil {
 				pageMeta.Images = append(pageMeta.Images, ImageMeta{
 					Source:        *parsedSrc,
 					AlternateText: alt,
+					Width:         width,
+					Height:        height,
 				})
 			}
 		}
