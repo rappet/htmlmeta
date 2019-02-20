@@ -49,3 +49,39 @@ func TestCreatePageMeta(t *testing.T) {
 		t.Fatal("example meta and extracted meta are not equal")
 	}
 }
+
+func TestLinkMeta(t *testing.T) {
+	linktests := []struct {
+		linkMeta LinkMeta
+		asString string
+	}{
+		{
+			LinkMeta{parse_url("http://example.org/"), "example"},
+			"http://example.org/,'example'",
+		},
+	}
+	for _, tt := range linktests {
+		asString := tt.linkMeta.String()
+		if asString != tt.asString {
+			t.Errorf("got %s, want %s", asString, tt.asString)
+		}
+	}
+}
+
+func TestImageMeta(t *testing.T) {
+	imagetests := []struct {
+		imageMeta ImageMeta
+		asString  string
+	}{
+		{
+			ImageMeta{parse_url("http://example.org/foo.png"), "example", 123, 456},
+			"http://example.org/foo.png,'example',(123x456)",
+		},
+	}
+	for _, tt := range imagetests {
+		asString := tt.imageMeta.String()
+		if asString != tt.asString {
+			t.Errorf("got %s, want %s", asString, tt.asString)
+		}
+	}
+}
