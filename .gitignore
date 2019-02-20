@@ -148,3 +148,6 @@ flycheck_*.el
 
 # ignore Goland
 .idea
+
+# dep vendor
+vendor
