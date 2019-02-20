@@ -1,6 +1,7 @@
 package htmlmeta
 
 import (
+	"fmt"
 	"io"
 	"net/url"
 	"strings"
@@ -86,10 +87,18 @@ type LinkMeta struct {
 	Text string
 }
 
+func (meta LinkMeta) String() string {
+	return fmt.Sprintf("%s,'%s'", meta.URL.String(), meta.Text)
+}
+
 // ImageMeta contains extracted metadata from an img tag
 type ImageMeta struct {
 	Source        url.URL
 	AlternateText string
 	Width         int
 	Height        int
+}
+
+func (meta ImageMeta) String() string {
+	return fmt.Sprintf("%s,'%s',(%dx%d)", meta.Source.String(), meta.AlternateText, meta.Width, meta.Height)
 }
