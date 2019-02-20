@@ -3,6 +3,7 @@ package htmlmeta
 import (
 	"io"
 	"net/url"
+	"strings"
 
 	"golang.org/x/net/html"
 )
@@ -37,7 +38,11 @@ func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 			}
 			for c := n.FirstChild; c != nil; c = c.NextSibling {
 				if c.Type == html.TextNode {
-					text = text + c.Data
+					if text == "" {
+						text = strings.TrimSpace(c.Data)
+					} else {
+						text = text + " " + strings.TrimSpace(c.Data)
+					}
 				}
 			}
 
@@ -65,10 +70,9 @@ func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 					AlternateText: alt,
 				})
 			}
-		} else {
-			for c := n.FirstChild; c != nil; c = c.NextSibling {
-				f(c)
-			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
 		}
 	}
 	f(doc)

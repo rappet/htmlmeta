@@ -13,6 +13,9 @@ const exampleFile string = `
 <body>
 	<a href="http://example.org/foo">foo</a>
 	<img src="http://example.org/a.png" alt="bar"/>
+	<a href="http://example.org/baz">
+		<img src="http://example.org/b.png" alt="foobar"/>
+	</a>
 </body>
 </html>
 `
@@ -24,14 +27,14 @@ func parse_url(s string) url.URL {
 
 var exampleMeta = &PageMeta{
 	Title: "",
-	Links: []LinkMeta{LinkMeta{
-		URL:  parse_url("http://example.org/foo"),
-		Text: "foo",
-	}},
-	Images: []ImageMeta{ImageMeta{
-		Source:        parse_url("http://example.org/a.png"),
-		AlternateText: "bar",
-	}},
+	Links: []LinkMeta{
+		LinkMeta{parse_url("http://example.org/foo"), "foo"},
+		LinkMeta{parse_url("http://example.org/baz"), ""},
+	},
+	Images: []ImageMeta{
+		ImageMeta{parse_url("http://example.org/a.png"), "bar", 0, 0},
+		ImageMeta{parse_url("http://example.org/b.png"), "foobar", 0, 0},
+	},
 }
 
 func TestCreatePageMeta(t *testing.T) {
@@ -41,8 +44,8 @@ func TestCreatePageMeta(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(meta, exampleMeta) {
-		t.Log("extracted:", meta)
-		t.Log("expected:", exampleMeta)
+		t.Logf("extracted: %v", meta)
+		t.Logf("expected: %v", exampleMeta)
 		t.Fatal("example meta and extracted meta are not equal")
 	}
 }
