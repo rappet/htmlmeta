@@ -48,6 +48,23 @@ func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 					Text: text,
 				})
 			}
+		} else if n.Type == html.ElementNode && n.Data == "img" {
+			src := ""
+			alt := ""
+			for _, a := range n.Attr {
+				if a.Key == "src" {
+					src = a.Val
+				} else if a.Key == "alt" {
+					alt = a.Val
+				}
+			}
+			parsedSrc, _ := url.Parse(src)
+			if parsedSrc != nil {
+				pageMeta.Images = append(pageMeta.Images, ImageMeta{
+					Source:        *parsedSrc,
+					AlternateText: alt,
+				})
+			}
 		} else {
 			for c := n.FirstChild; c != nil; c = c.NextSibling {
 				f(c)
