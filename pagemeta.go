@@ -83,6 +83,8 @@ func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 					Height:        height,
 				})
 			}
+		} else if n.Type == html.ElementNode && n.Data == "title" {
+			pageMeta.Title = stringContentOfNode(n)
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			f(c)

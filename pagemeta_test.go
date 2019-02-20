@@ -74,6 +74,14 @@ var createMetaTests = []struct {
 			Images: []ImageMeta{},
 		},
 	},
+	{
+		`<html><head><title>Foo</title></head></html>`,
+		&PageMeta{
+			Title:  "Foo",
+			Links:  []LinkMeta{},
+			Images: []ImageMeta{},
+		},
+	},
 }
 
 func TestCreatePageMeta(t *testing.T) {
