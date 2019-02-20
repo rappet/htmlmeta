@@ -16,6 +16,15 @@ type PageMeta struct {
 	Images []ImageMeta
 }
 
+func extractAttr(attrs []html.Attribute, key string) string {
+	for _, a := range attrs {
+		if key == a.Key {
+			return a.Val
+		}
+	}
+	return ""
+}
+
 // CreatePageMeta reads an HTML file from a reader and generates a PageMeta struct
 func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 	pageMeta := &PageMeta{
@@ -30,13 +39,8 @@ func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 	var f func(*html.Node)
 	f = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
-			href := ""
+			href := extractAttr(n.Attr, "href")
 			text := ""
-			for _, a := range n.Attr {
-				if a.Key == "href" {
-					href = a.Val
-				}
-			}
 			for c := n.FirstChild; c != nil; c = c.NextSibling {
 				if c.Type == html.TextNode {
 					if text == "" {
@@ -55,15 +59,8 @@ func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 				})
 			}
 		} else if n.Type == html.ElementNode && n.Data == "img" {
-			src := ""
-			alt := ""
-			for _, a := range n.Attr {
-				if a.Key == "src" {
-					src = a.Val
-				} else if a.Key == "alt" {
-					alt = a.Val
-				}
-			}
+			src := extractAttr(n.Attr, "src")
+			alt := extractAttr(n.Attr, "alt")
 			parsedSrc, _ := url.Parse(src)
 			if parsedSrc != nil {
 				pageMeta.Images = append(pageMeta.Images, ImageMeta{
