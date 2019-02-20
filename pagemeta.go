@@ -26,6 +26,24 @@ func extractAttr(attrs []html.Attribute, key string) string {
 	return ""
 }
 
+func stringContentOfNode(node *html.Node) string {
+	var text string
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
+		addText := ""
+		if c.Type == html.TextNode {
+			addText = c.Data
+		} else if c.Type == html.ElementNode {
+			addText = stringContentOfNode(c)
+		}
+		if text == "" {
+			text = strings.TrimSpace(addText)
+		} else {
+			text = strings.TrimSpace(text) + " " + strings.TrimSpace(addText)
+		}
+	}
+	return text
+}
+
 // CreatePageMeta reads an HTML file from a reader and generates a PageMeta struct
 func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 	pageMeta := &PageMeta{
@@ -41,16 +59,7 @@ func CreatePageMeta(r io.Reader) (*PageMeta, error) {
 	f = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
 			href := extractAttr(n.Attr, "href")
-			text := ""
-			for c := n.FirstChild; c != nil; c = c.NextSibling {
-				if c.Type == html.TextNode {
-					if text == "" {
-						text = strings.TrimSpace(c.Data)
-					} else {
-						text = text + " " + strings.TrimSpace(c.Data)
-					}
-				}
-			}
+			text := stringContentOfNode(n)
 
 			parsedURL, _ := url.Parse(href)
 			if parsedURL != nil {

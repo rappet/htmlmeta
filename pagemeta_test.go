@@ -65,6 +65,15 @@ var createMetaTests = []struct {
 			},
 		},
 	},
+	{
+		`<body><a href="http://example.com/">  Foo  <br/>  <p>Bar</p></a></body>`,
+		&PageMeta{
+			Links: []LinkMeta{
+				LinkMeta{parse_url("http://example.com/"), "Foo Bar"},
+			},
+			Images: []ImageMeta{},
+		},
+	},
 }
 
 func TestCreatePageMeta(t *testing.T) {
