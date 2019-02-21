@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func parse_url(s string) url.URL {
+func parseURL(s string) url.URL {
 	u, _ := url.Parse(s)
 	return *u
 }
@@ -29,10 +29,10 @@ var createMetaTests = []struct {
 		`,
 		&PageMeta{
 			Links: []LinkMeta{
-				LinkMeta{parse_url("http://example.org/foo"), "foo"},
+				LinkMeta{parseURL("http://example.org/foo"), "foo"},
 			},
 			Images: []ImageMeta{
-				ImageMeta{parse_url("http://example.org/a.png"), "bar", 0, 0},
+				ImageMeta{parseURL("http://example.org/a.png"), "bar", 0, 0},
 			},
 		},
 	},
@@ -45,7 +45,7 @@ var createMetaTests = []struct {
 		&PageMeta{
 			Links: []LinkMeta{},
 			Images: []ImageMeta{
-				ImageMeta{parse_url("http://example.org/size.jpg"), "size", 123, 456},
+				ImageMeta{parseURL("http://example.org/size.jpg"), "size", 123, 456},
 			},
 		},
 	},
@@ -59,10 +59,10 @@ var createMetaTests = []struct {
 		`,
 		&PageMeta{
 			Links: []LinkMeta{
-				LinkMeta{parse_url("http://example.org/baz"), ""},
+				LinkMeta{parseURL("http://example.org/baz"), ""},
 			},
 			Images: []ImageMeta{
-				ImageMeta{parse_url("http://example.org/b.png"), "foobar", 0, 0},
+				ImageMeta{parseURL("http://example.org/b.png"), "foobar", 0, 0},
 			},
 		},
 	},
@@ -70,7 +70,7 @@ var createMetaTests = []struct {
 		`<body><a href="http://example.com/">  Foo  <br/>  <p>Bar</p></a></body>`,
 		&PageMeta{
 			Links: []LinkMeta{
-				LinkMeta{parse_url("http://example.com/"), "Foo Bar"},
+				LinkMeta{parseURL("http://example.com/"), "Foo Bar"},
 			},
 			Images: []ImageMeta{},
 		},
@@ -107,7 +107,7 @@ func TestLinkMeta(t *testing.T) {
 		asJSON   string
 	}{
 		{
-			LinkMeta{parse_url("http://example.org/"), "example"},
+			LinkMeta{parseURL("http://example.org/"), "example"},
 			"http://example.org/,'example'",
 			`{"url":"http://example.org/","text":"example"}`,
 		},
@@ -146,7 +146,7 @@ func TestImageMeta(t *testing.T) {
 		asJSON    string
 	}{
 		{
-			ImageMeta{parse_url("http://example.org/foo.png"), "example", 123, 456},
+			ImageMeta{parseURL("http://example.org/foo.png"), "example", 123, 456},
 			"http://example.org/foo.png,'example',(123x456)",
 			`{"src":"http://example.org/foo.png","alt":"example","width":123,"height":456}`,
 		},
