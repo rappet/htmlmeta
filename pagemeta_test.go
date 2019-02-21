@@ -86,8 +86,9 @@ var createMetaTests = []struct {
 
 func TestCreatePageMeta(t *testing.T) {
 	for _, tt := range createMetaTests {
+		analyzer := HTMLAnalyzer{}
 		r := strings.NewReader(tt.in)
-		meta, err := CreatePageMeta(r)
+		meta, err := analyzer.GetPageMeta(r)
 		if meta == nil && err != nil && tt.out == nil {
 			continue
 		}
