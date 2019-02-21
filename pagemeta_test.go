@@ -88,8 +88,8 @@ func TestCreatePageMeta(t *testing.T) {
 	for _, tt := range createMetaTests {
 		r := strings.NewReader(tt.in)
 		meta, err := CreatePageMeta(r)
-		if err != nil {
-			t.Fatal(err)
+		if meta == nil && err != nil && tt.out == nil {
+			continue
 		}
 		if !reflect.DeepEqual(meta, tt.out) {
 			t.Logf("extracted: %v", meta)
