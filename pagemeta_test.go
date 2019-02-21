@@ -1,6 +1,7 @@
 package htmlmeta
 
 import (
+	"encoding/json"
 	"net/url"
 	"reflect"
 	"strings"
@@ -103,16 +104,37 @@ func TestLinkMeta(t *testing.T) {
 	linktests := []struct {
 		linkMeta LinkMeta
 		asString string
+		asJSON   string
 	}{
 		{
 			LinkMeta{parse_url("http://example.org/"), "example"},
 			"http://example.org/,'example'",
+			`{"url":"http://example.org/","text":"example"}`,
 		},
 	}
 	for _, tt := range linktests {
 		asString := tt.linkMeta.String()
 		if asString != tt.asString {
 			t.Errorf("got %s, want %s", asString, tt.asString)
+		}
+
+		asJSON, err := json.Marshal(tt.linkMeta)
+		if err != nil {
+			t.Errorf("could not marshal %v: %s", tt.linkMeta, err.Error())
+		}
+
+		if string(asJSON) != tt.asJSON {
+			t.Errorf("got %s, want %s", string(asJSON), tt.asJSON)
+		}
+
+		var fromJSON LinkMeta
+		err = json.Unmarshal([]byte(tt.asJSON), &fromJSON)
+		if err != nil {
+			t.Errorf("could not unmarshal %s: %s", tt.asJSON, err.Error())
+		}
+
+		if !reflect.DeepEqual(fromJSON, tt.linkMeta) {
+			t.Errorf("got %v, want %v", fromJSON, tt.linkMeta)
 		}
 	}
 }
@@ -121,16 +143,37 @@ func TestImageMeta(t *testing.T) {
 	imagetests := []struct {
 		imageMeta ImageMeta
 		asString  string
+		asJSON    string
 	}{
 		{
 			ImageMeta{parse_url("http://example.org/foo.png"), "example", 123, 456},
 			"http://example.org/foo.png,'example',(123x456)",
+			`{"src":"http://example.org/foo.png","alt":"example","width":123,"height":456}`,
 		},
 	}
 	for _, tt := range imagetests {
 		asString := tt.imageMeta.String()
 		if asString != tt.asString {
 			t.Errorf("got %s, want %s", asString, tt.asString)
+		}
+
+		asJSON, err := json.Marshal(tt.imageMeta)
+		if err != nil {
+			t.Errorf("could not marshal %v: %s", tt.imageMeta, err.Error())
+		}
+
+		if string(asJSON) != tt.asJSON {
+			t.Errorf("got %s, want %s", string(asJSON), tt.asJSON)
+		}
+
+		var fromJSON ImageMeta
+		err = json.Unmarshal([]byte(tt.asJSON), &fromJSON)
+		if err != nil {
+			t.Errorf("could not unmarshal %s: %s", tt.asJSON, err.Error())
+		}
+
+		if !reflect.DeepEqual(fromJSON, tt.imageMeta) {
+			t.Errorf("got %v, want %v", fromJSON, tt.imageMeta)
 		}
 	}
 }
