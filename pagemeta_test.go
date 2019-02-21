@@ -13,8 +13,9 @@ func parseURL(s string) url.URL {
 }
 
 var createMetaTests = []struct {
-	in  string
-	out *PageMeta
+	in       string
+	basePath string
+	out      *PageMeta
 }{
 	{
 		`
@@ -26,6 +27,7 @@ var createMetaTests = []struct {
 			</body>
 			</html>
 		`,
+		"",
 		&PageMeta{
 			Links: []LinkMeta{
 				LinkMeta{parseURL("http://example.org/foo"), "foo"},
@@ -41,6 +43,7 @@ var createMetaTests = []struct {
 				<img src="http://example.org/size.jpg" alt="size" width="123" height="456"/>
 			</body>
 		`,
+		"",
 		&PageMeta{
 			Links: []LinkMeta{},
 			Images: []ImageMeta{
@@ -56,6 +59,7 @@ var createMetaTests = []struct {
 				</a>
 			</body>
 		`,
+		"",
 		&PageMeta{
 			Links: []LinkMeta{
 				LinkMeta{parseURL("http://example.org/baz"), ""},
@@ -67,6 +71,7 @@ var createMetaTests = []struct {
 	},
 	{
 		`<body><a href="http://example.com/">  Foo  <br/>  <p>Bar</p></a></body>`,
+		"",
 		&PageMeta{
 			Links: []LinkMeta{
 				LinkMeta{parseURL("http://example.com/"), "Foo Bar"},
@@ -76,9 +81,20 @@ var createMetaTests = []struct {
 	},
 	{
 		`<html><head><title>Foo</title></head></html>`,
+		"",
 		&PageMeta{
 			Title:  "Foo",
 			Links:  []LinkMeta{},
+			Images: []ImageMeta{},
+		},
+	},
+	{
+		`<html><body><a href="foobar/baz.html"></a></body></html>`,
+		"http://example.org/foo/bar.html?123#456",
+		&PageMeta{
+			Links: []LinkMeta{
+				LinkMeta{parseURL("http://example.org/foo/foobar/baz.html"), ""},
+			},
 			Images: []ImageMeta{},
 		},
 	},
@@ -87,6 +103,13 @@ var createMetaTests = []struct {
 func TestCreatePageMeta(t *testing.T) {
 	for _, tt := range createMetaTests {
 		analyzer := HTMLAnalyzer{}
+
+		if tt.basePath != "" {
+			url := parseURL(tt.basePath)
+			analyzer.BaseURL = &url
+			analyzer.ConvertURLs = true
+		}
+
 		r := strings.NewReader(tt.in)
 		meta, err := analyzer.GetPageMeta(r)
 		if meta == nil && err != nil && tt.out == nil {

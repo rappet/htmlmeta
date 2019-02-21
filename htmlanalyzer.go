@@ -11,6 +11,8 @@ import (
 
 // HTMLAnalyzer extracts metadata from an HTML document
 type HTMLAnalyzer struct {
+	BaseURL     *url.URL
+	ConvertURLs bool
 }
 
 func extractAttr(attrs []html.Attribute, key string) string {
@@ -40,6 +42,35 @@ func stringContentOfNode(node *html.Node) string {
 	return text
 }
 
+func dir(path string) string {
+	if len(path) == 0 {
+		return ""
+	}
+
+	i := len(path) - 1
+
+	for i > 0 && '/' != path[i] {
+		i--
+	}
+	return path[0:i]
+}
+
+func (analyzer *HTMLAnalyzer) makeURLAbsolute(u *url.URL) error {
+	if analyzer.ConvertURLs && analyzer.BaseURL == nil {
+		return ErrorBaseURLNotSet
+	} else if analyzer.ConvertURLs {
+		if !u.IsAbs() {
+			u.Scheme = analyzer.BaseURL.Scheme
+			u.User = analyzer.BaseURL.User
+			u.Host = analyzer.BaseURL.Host
+			u.Path = dir(analyzer.BaseURL.Path) + "/" + u.Path
+		}
+		return nil
+	} else {
+		return nil
+	}
+}
+
 // GetPageMeta reads an HTML file from a reader and generates a PageMeta struct
 func (analyzer *HTMLAnalyzer) GetPageMeta(r io.Reader) (*PageMeta, error) {
 	pageMeta := &PageMeta{
@@ -58,6 +89,7 @@ func (analyzer *HTMLAnalyzer) GetPageMeta(r io.Reader) (*PageMeta, error) {
 			text := stringContentOfNode(n)
 
 			parsedURL, _ := url.Parse(href)
+			analyzer.makeURLAbsolute(parsedURL)
 			if parsedURL != nil {
 				pageMeta.Links = append(pageMeta.Links, LinkMeta{
 					URL:  *parsedURL,
